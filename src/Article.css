@@ -1,6 +1,6 @@
 .Article-li {
   overflow: hidden;
-  transition: all 2s ease-out;
+  transition: all .6s ease-out;
 }
 
 .Article-image {

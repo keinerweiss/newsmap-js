@@ -9,7 +9,7 @@
 
 .TreeMap-cat-list > li {
   position: absolute;
-  transition: all 2s;
+  transition: all .6s ease-out;
 }
 
 .TreeMap-cat-list > li > p {

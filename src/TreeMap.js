@@ -35,7 +35,7 @@ export default class TreeMap extends Component {
                   {
                     category.articles.map((article,i) => {
                       const childProps = {
-                        key: article.id,
+                        key: article.id+":"+article.category,
                         item: article,
                         category,
                         style: {

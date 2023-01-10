@@ -114,34 +114,51 @@ class Edition extends Component {
     const Map = this.props.mode === "tree" ? TreeMap : GridMap;
     const { selectedCategories, showImages, colours, itemsPerCategory, newTab } = this.props;
     const { categories } = this.state;
-
+    
     const cats = categories.filter(c => selectedCategories.includes(c.id));
 
+    const newsMix = [];
+
     let items = cats.map(c => {
-      const articles = c.articles.map(a => ({ ...a, weight: weight(a) }));
+      
+      const oldestAndNewest = c.articles.reduce((out,a) => {        
+        const c = (new Date(a.publishedAt)).valueOf();
+        if(c > out.newest) out.newest = c;
+        if(out.oldest==0 || c < out.oldest) out.oldest = c;
+        return out;
+      }, {"oldest":0, "newest":0});
+      
+      const articles = c.articles.map((a,i) => ({ ...a, relevance:itemsPerCategory-i, weight: weight(a, oldestAndNewest, itemsPerCategory-i), category: c.id, normalizedAge:((new Date(a.publishedAt)).valueOf() - oldestAndNewest.oldest) / (oldestAndNewest.newest - oldestAndNewest.oldest) }));
 
       articles.sort((a,b) => b.weight - a.weight)
 
+      //whut?
       if (articles.length > itemsPerCategory) {
         articles.length = itemsPerCategory;
       }
+
+      articles.map((a) => newsMix.push(a));
 
       return {
         ...c,
         articles,
         weight: articles.reduce((t, a) => t + a.weight, 0),
       };
+
     });
 
-    items.sort((a,b) => b.weight - a.weight);
+    newsMix.sort((a,b) => b.weight - a.weight)
+    
+    //items.sort((a,b) => b.weight - a.weight);
 
     if (items.length === 0) {
       return null;
     }
-
+//console.log(items);
+//console.log([{id:"world", key:"de_world", name:"world", articles:newsMix, weight:0.11111111}])
     return (
       <Map
-        items={items}
+        items={ [{id:"world", key:"de_world", name:"world", articles:newsMix, weight:0.11111111}] }
         itemRender={props => (
           <Article
             showImage={showImages}
@@ -156,6 +173,16 @@ class Edition extends Component {
   }
 }
 
-const weight = a => 1/(Date.now() - +new Date(a.publishedAt));
+const weight = (a, oldestAndNewest, relevance) => {
+  // Science seems to mostly have only once source and therefor slips to the end in the mix
+  // Maybe normalize the dates?
+  const pubDate = (new Date(a.publishedAt)).valueOf();
+  const normalizedAge = (pubDate - oldestAndNewest.oldest) / (oldestAndNewest.newest - oldestAndNewest.oldest);
+  const uniqueSources = Object.values(a.sources.map((source) => source.id)).length;
 
+  return relevance * uniqueSources * normalizedAge;
+  // return normalizedAge * uniqueSources * relevance;
+  // return (Date.now() - pubDate) * normalizedAge / uniqueSources;
+  // return (Date.now() - pubDate);
+}
 export default Edition;

@@ -20,7 +20,7 @@ export default function Article ({ item, category, showImage, colours = defaultC
     style.backgroundImage = `url(${item.imageURL})`;
   }
 
-  const backgroundColor = getAgedColour(colours[category.id], timeDelta / (1000 * 60 * 60));
+  const backgroundColor = getAgedColour(colours[item.category], timeDelta / (1000 * 60 * 60));
 
   const source = item.sources && item.sources.length && item.sources[0] || item;
 
@@ -29,7 +29,7 @@ export default function Article ({ item, category, showImage, colours = defaultC
       <a
         href={item.url}
         className="article"
-        title={source.name ? `${source.name}: ${source.title}` : source.title}
+        title={("Age: "+ parseInt((timeDelta / (1000 * 60 * 60))) +" ("+item.publishedAt+", realitve: "+parseInt(item.normalizedAge*1000)+"), "+item.sources.length + " sources: ") + (source.name ? `${source.name}: ${source.title}` : source.title)}
         data-source={source.name}
         style={{ backgroundColor, fontSize, color: luminance(backgroundColor) > 176 ? "#111" : "#FFF" }}
         onClick={onClick}

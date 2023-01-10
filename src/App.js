@@ -300,7 +300,7 @@ class App extends Component {
     const colours = palettes[selectedPalette] || defaultColours;
 
     const showEditionName = selectedEditions.length > 1;
-
+    
     return (
       <div className="App">
         { headerTop && this.renderHeader(colours) }
@@ -341,6 +341,7 @@ function getSavedState () {
 }
 
 function findEdition (id) {
+  
   return editions.find(e => e.value === id);
 }
 
